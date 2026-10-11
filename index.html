@@ -356,11 +356,6 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
           </div>
           <p class="note">Sun time, worked out from the sun's position. Clock time can differ, because time zones follow borders.</p>
         </article>
-        <article class="card">
-          <span class="tag">Fun fact about where you come out</span>
-          <ul class="fun" id="funFacts"></ul>
-          <p class="note">Land and water shares worked out from Natural Earth map data.</p>
-        </article>
         <article class="card" id="shipsCard" hidden>
           <span class="tag">Ships near your exit</span>
           <h3>Is anyone sailing past?</h3>
@@ -371,13 +366,20 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
           <p class="note">Far out at sea, ships can be rare, and some free trackers show fewer ships in mid-ocean.</p>
         </article>
       </div>
-      <article class="card">
-        <span class="tag">Nearest town to the exit</span>
-        <h3 id="townName">–</h3>
-        <p class="meta" id="townMeta"></p>
-        <div class="wiki" id="townWiki"></div>
-        <div class="links" id="townLinks"></div>
-      </article>
+      <div class="col">
+        <article class="card">
+          <span class="tag">Fun fact about where you come out</span>
+          <ul class="fun" id="funFacts"></ul>
+          <p class="note">Land and water shares worked out from Natural Earth map data.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Nearest town to the exit</span>
+          <h3 id="townName">–</h3>
+          <p class="meta" id="townMeta"></p>
+          <div class="wiki" id="townWiki"></div>
+          <div class="links" id="townLinks"></div>
+        </article>
+      </div>
       <article class="card">
         <span class="tag" id="areaTag">About</span>
         <div class="wiki" id="areaWiki"></div>
