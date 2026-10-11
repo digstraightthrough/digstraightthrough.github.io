@@ -45,7 +45,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--space); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
-.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: grid; gap: 24px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: grid; gap: 18px; }
 a { color: var(--start); }
 [hidden] { display: none !important; }
 body[data-mode="daily"] .explore-only, body[data-mode="explore"] .daily-only, body[data-revealed="no"] .needs-reveal, body[data-revealed="yes"] .pre-reveal { display: none !important; }
@@ -59,10 +59,15 @@ header { display: grid; gap: 8px; max-width: 46rem; }
 h1 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 5.5vw, 50px); line-height: 1.02; letter-spacing: -.02em; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); max-width: 40rem; }
 
-.modes { display: inline-flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; justify-self: start; }
-.modes button { border: 0; border-radius: 999px; padding: 9px 18px; color: var(--muted); }
+/* Title on the left, mode buttons on the right of the same row; on narrow screens the buttons wrap below the title. */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 40px; }
+.top header { flex: 1 1 520px; min-width: 0; }
+.modes { display: inline-flex; gap: 6px; padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; flex: none; }
+.modes button { border: 0; border-radius: 999px; padding: 16px 32px; font-family: var(--f-display); font-weight: 800; font-size: 22px; color: var(--muted); }
+.modes button:hover:not([aria-pressed="true"]) { color: var(--ink); }
 .modes button[aria-pressed="true"] { background: var(--ink); color: var(--space); }
-.modes .new { font-family: var(--f-mono); font-size: 10px; letter-spacing: .08em; color: var(--magma); margin-left: 6px; }
+.modes .new { font-family: var(--f-mono); font-weight: 500; font-size: 11px; letter-spacing: .08em; color: var(--magma); margin-left: 8px; vertical-align: 3px; }
+@media (max-width: 560px) { .modes { width: 100%; } .modes button { flex: 1; padding: 14px 12px; font-size: 19px; } }
 .modes button[aria-pressed="true"] .new { color: #b2450f; }
 
 button { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; cursor: pointer; }
@@ -232,16 +237,18 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
 </head>
 <body data-mode="explore" data-revealed="yes">
 <main class="wrap">
-  <header>
-    <p class="eyebrow">Antipode finder</p>
-    <h1>Dig straight down. Where do you come out?</h1>
-    <p class="lede">Pick any spot on Earth, down to your own street. A straight tunnel through the planet's centre always surfaces at the exact opposite point. Find yours, take the trip, or play today's Daily Dig.</p>
-  </header>
+  <div class="top">
+    <header>
+      <p class="eyebrow">Antipode finder</p>
+      <h1>Dig straight down. Where do you come out?</h1>
+      <p class="lede">Pick any spot on Earth, down to your own street. A straight tunnel through the planet's centre always surfaces at the exact opposite point. Find yours, take the trip, or play today's Daily Dig.</p>
+    </header>
 
-  <nav class="modes" aria-label="Mode">
-    <button id="modeExplore" type="button" aria-pressed="true">Explore</button>
-    <button id="modeDaily" type="button" aria-pressed="false">Daily Dig<span class="new">NEW</span></button>
-  </nav>
+    <nav class="modes" aria-label="Mode">
+      <button id="modeExplore" type="button" aria-pressed="true">Explore</button>
+      <button id="modeDaily" type="button" aria-pressed="false">Daily Dig<span class="new">NEW</span></button>
+    </nav>
+  </div>
 
   <section class="controls explore-only" aria-label="Choose a starting point">
     <div class="search">
