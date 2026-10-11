@@ -171,15 +171,15 @@
 
   // ---------- ships near the exit (links out to public ship-tracking sites, centred on the exit) ----------
   const shipSites = p => [
-    { name: "MarineTraffic", url: `https://www.marinetraffic.com/en/ais/home/centerx:${p[0].toFixed(2)}/centery:${p[1].toFixed(2)}/zoom:7` },
-    { name: "VesselFinder", url: `https://www.vesselfinder.com/?lat=${p[1].toFixed(2)}&lon=${p[0].toFixed(2)}&zoom=7` }
+    { name: "MarineTraffic", url: `https://www.marinetraffic.com/en/ais/home/centerx:${p[0].toFixed(2)}/centery:${p[1].toFixed(2)}/zoom:5` },
+    { name: "VesselFinder", url: `https://www.vesselfinder.com/?lat=${p[1].toFixed(2)}&lon=${p[0].toFixed(2)}&zoom=5` }
   ];
   // VesselFinder's live map, embedded with their permission. This builds the same frame as their official
   // embed code (vesselfinder.com/embed, aismap.js), with the same settings; their script can only run while
   // the page first loads, but this card appears later, after the dig.
   function vesselFinderFrame(p) {
     const q = [
-      "zoom=7", `lat=${p[1].toFixed(4)}`, `lon=${p[0].toFixed(4)}`, "width=100%25", "height=400", "names=false",
+      "zoom=5", `lat=${p[1].toFixed(4)}`, `lon=${p[0].toFixed(4)}`, "width=100%25", "height=400", "names=false",
       "track=false", "fleet=false", "fleet_name=false", "fleet_hide_old_positions=false",
       "clicktoact=true", "store_pos=true", `ra=${encodeURIComponent(location.href)}`
     ].join("&");
