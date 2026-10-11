@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy · Dig Straight Through</title>
+<meta name="description" content="What Dig Straight Through keeps, what it sends to other services, and why.">
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
+<style>
+/* Same visual language as the app: dark night-sky page, one readable column. */
+:root {
+  --space: #0a0f1c;
+  --panel: #111a2d;
+  --line: #24304b;
+  --ink: #e9edf6;
+  --muted: #93a0bd;
+  --start: #7fd6ff;
+  --magma: #ff7b3a;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--space); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 32px 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+.wrap > * { min-width: 0; }
+a { color: var(--start); }
+a:focus-visible { outline: 2px solid var(--start); outline-offset: 2px; }
+.back { font-size: 14px; text-decoration: none; }
+.eyebrow { margin: 0; font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--magma); }
+h1 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 6vw, 48px); line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; }
+h2 { margin: 0 0 8px; font-family: var(--f-display); font-weight: 800; font-size: 24px; line-height: 1.2; }
+p { margin: 0 0 10px; }
+.muted { color: var(--muted); }
+header { display: grid; gap: 10px; }
+.summary { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.summary ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 620px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--panel); }
+tr:last-child td { border-bottom: 0; }
+td strong { font-weight: 600; }
+section ul { margin: 0 0 10px; padding-left: 20px; display: grid; gap: 4px; }
+code { font-family: var(--f-mono); font-size: 13px; background: var(--panel); padding: 1px 6px; border-radius: 5px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="back" href="./">← Back to Dig Straight Through</a>
+
+  <header>
+    <p class="eyebrow">Privacy</p>
+    <h1>What this site keeps, and what it sends where</h1>
+    <p class="muted">Last updated: 6 October 2026</p>
+  </header>
+
+  <div class="summary">
+    <h2>In short</h2>
+    <ul>
+      <li>No accounts, no ads, no tracking or analytics, no cookies set by this site. (The live ship map from VesselFinder, shown for sea exits, follows its own cookie rules.)</li>
+      <li>Your Daily Dig scores stay in your own browser. We never receive them.</li>
+      <li>To show maps, street names, satellite photos and descriptions, your browser contacts a few outside services, listed below.</li>
+      <li>We have no server and no database, so we hold no personal data about you.</li>
+    </ul>
+  </div>
+
+  <section>
+    <h2>Who runs this site</h2>
+    <p>Dig Straight Through is a free, personal, non-commercial project by Arman. For any question about privacy, write to <a href="mailto:digstraightthrough@gmail.com">digstraightthrough@gmail.com</a>.</p>
+  </section>
+
+  <section>
+    <h2>What stays on your device</h2>
+    <p>If you play the Daily Dig, your browser saves your results so you can see your streak and history: the day number, your score, how far off your guess was, and the point you guessed. This is stored with your browser's own storage (called "local storage"), only on that device and in that browser. It is never sent to us or anyone else.</p>
+    <p>To delete it, clear this site's data in your browser settings. Your history and streak will then start again from zero.</p>
+  </section>
+
+  <section>
+    <h2>What your browser sends to other services</h2>
+    <p>Like any website that shows maps, this site asks other services for map images and information. When your browser does that, the service receives your internet (IP) address and basic browser information, plus what is listed below. Each service handles that under its own privacy policy.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Service</th><th>When</th><th>What it receives</th><th>Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>GitHub Pages</strong> (hosting)<br><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Privacy policy</a></td>
+            <td>Every visit</td>
+            <td>The pages and files you open</td>
+            <td>To deliver this website to you</td>
+          </tr>
+          <tr>
+            <td><strong>OpenStreetMap</strong><br><a href="https://osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">Privacy policy</a></td>
+            <td>Whenever a street map is shown</td>
+            <td>Which map area and zoom level you are looking at, and the page you are on</td>
+            <td>To draw the street maps</td>
+          </tr>
+          <tr>
+            <td><strong>Esri</strong> (ArcGIS Location Platform)<br><a href="https://www.esri.com/en-us/privacy/privacy-statements/privacy-statement" target="_blank" rel="noopener">Privacy policy</a></td>
+            <td>When you pick a starting point, type in the search box, switch to satellite view, or play the dig animation</td>
+            <td>The coordinates of your starting point and of the exit point; the text you type in the search box (from the third letter); which satellite map area you view</td>
+            <td>To find street names, search for places, and show satellite photos</td>
+          </tr>
+          <tr>
+            <td><strong>VesselFinder</strong> (live ship map)<br><a href="https://www.vesselfinder.com/privacy" target="_blank" rel="noopener">Privacy policy</a></td>
+            <td>After you dig, only when the exit is in a sea or ocean</td>
+            <td>The coordinates of the exit point and the address of this page. Inside their map, VesselFinder's own cookie and privacy rules apply.</td>
+            <td>To show live ship positions around the exit (shown with their permission)</td>
+          </tr>
+          <tr>
+            <td><strong>Wikipedia</strong> (Wikimedia Foundation)<br><a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy" target="_blank" rel="noopener">Privacy policy</a></td>
+            <td>After you dig, when the facts about the exit are shown</td>
+            <td>The coordinates of the exit point and the names of the nearest town and country or sea</td>
+            <td>To show descriptions and photos of places near the exit</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your location</h2>
+    <p>The site only asks for your location if you press <em>Use my location</em>, and your browser will ask for your permission first. Your position is used inside the page to set the starting point. Like any starting point, it is then sent to Esri to find the street name, and the map around it is loaded from OpenStreetMap, as described above. We never store it.</p>
+  </section>
+
+  <section>
+    <h2>Sharing</h2>
+    <p>The share picture is made inside your browser; nothing is uploaded by us. A shared link contains your starting point, rounded to about 100 metres, so it never points to an exact house. Names shown for a starting point leave out house numbers for the same reason. If you share through WhatsApp, X or your phone's share menu, that service's own privacy rules apply.</p>
+  </section>
+
+  <section>
+    <h2>Links to other websites</h2>
+    <p>Some buttons open other websites in a new tab, for example ship-tracking sites (MarineTraffic, VesselFinder), OpenStreetMap or Wikipedia. Nothing is sent to them unless you click. Once you are on their site, their own privacy policy and cookie rules apply.</p>
+  </section>
+
+  <section>
+    <h2>What we don't do</h2>
+    <ul>
+      <li>No user accounts or sign-in.</li>
+      <li>No advertising, analytics or tracking tools.</li>
+      <li>No selling or sharing of data. We don't collect any to begin with.</li>
+      <li>Fonts and code libraries are served from this site itself, so your browser does not contact Google or code-hosting services when you visit.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Your rights</h2>
+    <p>Because this site stores no personal data on any server, there is nothing about you for us to show, correct or delete. Your Daily Dig scores are under your control in your own browser. For the outside services above, you can contact them through their privacy policies. You can always write to us at <a href="mailto:digstraightthrough@gmail.com">digstraightthrough@gmail.com</a>, and you have the right to complain to your local data protection authority.</p>
+  </section>
+
+  <footer>If this page changes, the date at the top will change too.</footer>
+</main>
+</body>
+</html>

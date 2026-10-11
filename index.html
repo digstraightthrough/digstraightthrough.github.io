@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dig Straight Through</title>
+<meta name="description" content="Pick any spot on Earth and see where a straight tunnel through the core would come out. Play the Daily Dig.">
+<!-- Link preview (WhatsApp, X, Facebook, LinkedIn…). These apps need full addresses. -->
+<link rel="canonical" href="https://digstraightthrough.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://digstraightthrough.github.io/">
+<meta property="og:site_name" content="Dig Straight Through">
+<meta property="og:title" content="Dig Straight Through">
+<meta property="og:description" content="Pick any spot on Earth. Where does your tunnel come out? Free, with a Daily Dig puzzle.">
+<meta property="og:image" content="https://digstraightthrough.github.io/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Earth cut in half, with a straight tunnel from one side to the other">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dig Straight Through">
+<meta name="twitter:description" content="Pick any spot on Earth. Where does your tunnel come out?">
+<meta name="twitter:image" content="https://digstraightthrough.github.io/preview.png">
+<!-- Fonts and map tools are served from our own folder (vendor/), so visitors' browsers don't contact Google or code-hosting sites. -->
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.min.css">
+<style>
+/* Layout: header + mode tabs, search row (Explore) or daily panel (Daily Dig), two maps side by side (stacked on phones), actions, facts, cross-section.
+   Full-screen film overlay and a share sheet sit above everything. Single dark look by choice. */
+:root {
+  --space: #0a0f1c;
+  --panel: #111a2d;
+  --line: #24304b;
+  --ink: #e9edf6;
+  --muted: #93a0bd;
+  --ocean: #173a66;
+  --start: #7fd6ff;
+  --magma: #ff7b3a;
+  --core: #ffb347;
+  --guess: #ffd84d;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--space); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: grid; gap: 24px; }
+a { color: var(--start); }
+[hidden] { display: none !important; }
+body[data-mode="daily"] .explore-only, body[data-mode="explore"] .daily-only, body[data-revealed="no"] .needs-reveal, body[data-revealed="yes"] .pre-reveal { display: none !important; }
+.map-wrap { position: relative; }
+.mystery { position: absolute; inset: 0; z-index: 500; display: grid; place-items: center; pointer-events: none; border-radius: 14px; background: radial-gradient(circle, rgba(10,15,28,.35), rgba(10,15,28,.05) 70%); }
+.mystery span { font-family: var(--f-display); font-weight: 800; font-size: clamp(120px, 22vw, 220px); line-height: 1; color: var(--magma); text-shadow: 0 6px 30px rgba(0,0,0,.45), 0 0 0 #000; -webkit-text-stroke: 4px #0a0f1c; paint-order: stroke fill; animation: bob 3s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+header { display: grid; gap: 8px; max-width: 46rem; }
+.eyebrow { margin: 0; font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--magma); }
+h1 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 5.5vw, 50px); line-height: 1.02; letter-spacing: -.02em; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 40rem; }
+
+.modes { display: inline-flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; justify-self: start; }
+.modes button { border: 0; border-radius: 999px; padding: 9px 18px; color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--space); }
+.modes .new { font-family: var(--f-mono); font-size: 10px; letter-spacing: .08em; color: var(--magma); margin-left: 6px; }
+.modes button[aria-pressed="true"] .new { color: #b2450f; }
+
+button { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primary { background: var(--magma); border-color: var(--magma); color: #1a0d05; }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--start); outline-offset: 2px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.search { position: relative; flex: 1 1 320px; min-width: 0; display: grid; gap: 6px; }
+.search label { font-size: 13px; color: var(--muted); }
+input#q { width: 100%; font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+#sugg { position: absolute; z-index: 1000; top: 100%; left: 0; right: 0; margin: 4px 0 0; padding: 4px; list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.45); max-height: 340px; overflow-y: auto; }
+#sugg li { padding: 9px 10px; border-radius: 7px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+#sugg li small { color: var(--muted); text-align: right; }
+#sugg li.addr { color: var(--start); }
+#sugg li[aria-selected="true"], #sugg li:hover { background: var(--line); }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.msg { flex-basis: 100%; margin: 0; font-size: 14px; color: var(--core); }
+
+.daily { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+@media (max-width: 820px) { .daily { grid-template-columns: minmax(0, 1fr); } }
+.daily-main { display: grid; gap: 10px; min-width: 0; }
+.daily h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3.6vw, 34px); line-height: 1.1; text-wrap: balance; }
+.daily h2 span { color: var(--start); }
+.daily-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.meta { margin: 0; color: var(--muted); font-size: 14px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.stats div { background: var(--space); padding: 10px 12px; display: grid; gap: 2px; }
+.stats dt { font-size: 11px; color: var(--muted); }
+.stats dd { margin: 0; font-family: var(--f-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.daily-side { display: grid; gap: 12px; min-width: 0; }
+.result { display: grid; gap: 8px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--space); }
+.result h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 26px; color: var(--guess); }
+.result p { margin: 0; }
+.bar { display: flex; gap: 6px; }
+.bar i { width: 28px; height: 10px; border-radius: 3px; background: var(--line); }
+.bar i.on { background: var(--magma); }
+
+.history { display: grid; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+.hist-head { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; justify-content: space-between; }
+.hist-chart { position: relative; height: 180px; padding-left: 44px; }
+.hist-grid { position: absolute; left: 44px; right: 0; top: 0; bottom: 22px; }
+.gl { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
+.gl span { position: absolute; left: -44px; top: -8px; width: 38px; text-align: right; font-family: var(--f-mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hist-cols { position: relative; height: 100%; display: flex; gap: 6px; }
+.hc { flex: 1 1 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) 18px; gap: 4px; border-radius: 4px; outline: none; }
+.hc:focus-visible { box-shadow: 0 0 0 2px var(--start); }
+.track { display: flex; align-items: flex-end; justify-content: center; min-height: 0; }
+.track .b { width: min(100%, 28px); background: var(--magma); border-radius: 4px 4px 0 0; }
+.track .miss { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--muted); margin-bottom: -4px; }
+.hc:hover .b, .hc:focus-visible .b { filter: brightness(1.15); }
+.hc small { font-family: var(--f-mono); font-size: 10px; color: var(--muted); text-align: center; line-height: 18px; white-space: nowrap; overflow: hidden; }
+.hc.today small { color: var(--ink); font-weight: 600; }
+#histTip { position: absolute; z-index: 3; pointer-events: none; transform: translate(-50%, calc(-100% - 8px)); background: var(--space); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+.hist-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.hist-list li { background: var(--space); display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; }
+.hl-day { font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.hl-main { display: grid; min-width: 0; }
+.hl-main strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hl-main span { font-size: 13px; color: var(--muted); }
+.hl-score { font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; display: grid; justify-items: end; gap: 4px; }
+.hl-score .bar i { width: 14px; height: 6px; }
+.hist-list li.missed .hl-main strong, .hist-list li.missed .hl-score { color: var(--muted); font-weight: 400; }
+.maps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 820px) { .maps { grid-template-columns: minmax(0, 1fr); } }
+.side { display: grid; gap: 10px; min-width: 0; align-content: start; }
+.pt { display: grid; gap: 2px; padding-left: 14px; border-left: 3px solid var(--start); min-height: 104px; align-content: start; }
+.side.exit .pt { border-left-color: var(--magma); }
+.tag { font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.pt h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(22px, 3vw, 30px); line-height: 1.1; text-wrap: balance; }
+.side.exit h2 { color: var(--magma); }
+.pt p { margin: 0; }
+.coord { font-family: var(--f-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.map { width: 100%; height: 440px; border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
+@media (max-width: 820px) { .map { height: 340px; } }
+.leaflet-container { background: var(--ocean); font-family: var(--f-body); }
+.pin { border-radius: 50%; border: 3px solid #0a0f1c; }
+.pin-start { background: var(--start); box-shadow: 0 0 0 3px rgba(127,214,255,.45); }
+.pin-exit { background: var(--magma); box-shadow: 0 0 0 3px rgba(255,123,58,.45); }
+.pin-guess { background: var(--guess); box-shadow: 0 0 0 3px rgba(255,216,77,.45); }
+.hint { margin: 0; font-size: 13px; color: var(--muted); }
+
+.dig-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: center; }
+.big { font-family: var(--f-display); font-weight: 800; font-size: 22px; padding: 16px 34px; border-radius: 999px; }
+#dig { background: var(--magma); border-color: var(--magma); color: #1a0d05; animation: pulse 2.4s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,123,58,.45); } 100% { box-shadow: 0 0 0 22px rgba(255,123,58,0); } }
+
+.there { display: grid; gap: 16px; }
+.sec { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3.4vw, 32px); }
+.there-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+@media (max-width: 980px) { .there-grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: grid; gap: 16px; min-width: 0; align-content: start; }
+.ship-map { width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--ocean); }
+.ship-map iframe { display: block; width: 100%; height: 400px; border: 0; }
+.fun { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.fun li { display: grid; gap: 2px; padding-left: 12px; border-left: 2px solid var(--line); font-size: 14px; }
+.fun li strong { font-family: var(--f-display); font-weight: 800; font-size: 17px; line-height: 1.2; color: var(--ink); }
+.fun li span { color: var(--muted); }
+.fun li.hi { border-left-color: var(--magma); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 8px; min-width: 0; }
+.card h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 22px; line-height: 1.15; }
+.now-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.now-row div { display: grid; gap: 2px; }
+.now-row small { color: var(--muted); font-size: 12px; }
+.now-row strong { font-family: var(--f-mono); font-size: 30px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.now-row span { font-size: 14px; }
+.note { margin: 0; font-size: 12px; color: var(--muted); }
+.wiki { display: grid; gap: 8px; font-size: 14px; }
+.wiki img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; }
+.wiki p { margin: 0; }
+.wiki .wt { font-weight: 600; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a, .links button { font-size: 13px; font-weight: 600; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink); background: transparent; }
+.nearby h3 { margin: 0 0 10px; font-size: 18px; font-family: var(--f-display); font-weight: 800; }
+.nearby h3 small { font-family: var(--f-body); font-weight: 400; font-size: 13px; color: var(--muted); }
+.nearby-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.nearby-list li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; min-width: 0; }
+.nearby-list li.empty { grid-column: 1 / -1; padding: 16px; color: var(--muted); }
+.nearby-list img { width: 100%; height: 130px; object-fit: cover; display: block; }
+.nearby-list .nb { padding: 12px 14px; display: grid; gap: 4px; font-size: 14px; }
+.nearby-list .nb a { font-weight: 600; font-size: 15px; }
+.nearby-list .nb small { color: var(--muted); }
+.credit { margin: 0; font-size: 12px; color: var(--muted); }
+
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+@media (max-width: 640px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.facts div { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; }
+.facts dt { font-size: 12px; color: var(--muted); }
+.facts dd { margin: 0; font-family: var(--f-mono); font-size: 15px; font-variant-numeric: tabular-nums; }
+
+.cut { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 28px; align-items: center; padding-top: 28px; border-top: 1px solid var(--line); }
+@media (max-width: 640px) { .cut { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+.cut svg { width: 100%; max-width: 300px; height: auto; }
+.cut h3 { margin: 0 0 8px; font-family: var(--f-display); font-weight: 800; font-size: 24px; }
+.cut p { margin: 0 0 10px; color: var(--muted); max-width: 36rem; }
+.layers { display: grid; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.layers li { display: flex; gap: 10px; align-items: center; }
+.sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.layers span.km { margin-left: auto; font-family: var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+
+/* Film overlay */
+#film { position: fixed; inset: 0; z-index: 5000; background: #000; }
+#filmCanvas { width: 100%; height: 100%; display: block; }
+.film-top { position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); right: 14px; display: flex; gap: 8px; }
+.film-top button { background: rgba(10,15,28,.62); border-color: rgba(255,255,255,.25); backdrop-filter: blur(6px); padding: 9px 14px; }
+.film-end { position: absolute; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(560px, calc(100% - 32px)); background: rgba(10,15,28,.9); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; display: grid; gap: 8px; animation: rise .5s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.film-end h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 4vw, 34px); line-height: 1.1; color: var(--magma); text-wrap: balance; }
+.film-end p { margin: 0; color: var(--ink); font-size: 15px; }
+.film-end p.dim { color: var(--muted); font-family: var(--f-mono); font-size: 13px; }
+.fe-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+/* Share sheet */
+.sheet { position: fixed; inset: 0; z-index: 6000; background: rgba(3,6,14,.72); display: grid; place-items: center; padding: 16px; }
+.sheet-card { width: min(520px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 12px; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.sheet-head h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 24px; }
+.sheet-card img { width: 100%; border-radius: 12px; border: 1px solid var(--line); background: var(--space); aspect-ratio: 1; }
+.sheet-text { margin: 0; font-size: 14px; color: var(--muted); white-space: pre-line; }
+.sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sheet-actions > * { text-align: center; text-decoration: none; font-weight: 600; font-size: 15px; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); color: var(--ink); }
+.sheet-actions .primary { grid-column: 1 / -1; }
+@media (prefers-reduced-motion: reduce) { #dig { animation: none; } .film-end { animation: none; } }
+</style>
+</head>
+<body data-mode="explore" data-revealed="yes">
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Antipode finder</p>
+    <h1>Dig straight down. Where do you come out?</h1>
+    <p class="lede">Pick any spot on Earth, down to your own street. A straight tunnel through the planet's centre always surfaces at the exact opposite point. Find yours, take the trip, or play today's Daily Dig.</p>
+  </header>
+
+  <nav class="modes" aria-label="Mode">
+    <button id="modeExplore" type="button" aria-pressed="true">Explore</button>
+    <button id="modeDaily" type="button" aria-pressed="false">Daily Dig<span class="new">NEW</span></button>
+  </nav>
+
+  <section class="controls explore-only" aria-label="Choose a starting point">
+    <div class="search">
+      <label for="q">Search a city, street or address</label>
+      <input id="q" type="search" autocomplete="off" placeholder="Istanbul, Bağdat Caddesi, Times Square…" aria-controls="sugg" aria-autocomplete="list">
+      <ul id="sugg" role="listbox" hidden></ul>
+    </div>
+    <div class="btns">
+      <button id="geo" type="button">Use my location</button>
+      <button id="rand" type="button">Surprise me</button>
+    </div>
+    <p id="msg" class="msg" hidden></p>
+  </section>
+
+  <section class="daily daily-only" aria-label="Daily Dig">
+    <div class="daily-main">
+      <span class="tag" id="dailyNo">Daily Dig</span>
+      <h2>Today's tunnel starts in <span id="dailyCity">…</span>. Where does it come out?</h2>
+      <p class="meta" id="dailyHow">Tap the right-hand map where you think the tunnel surfaces. Zoom in to be precise, then lock in your guess. One guess per day.</p>
+      <div class="daily-actions">
+        <button id="lockGuess" class="primary" type="button" disabled>Lock in my guess</button>
+        <span id="guessInfo" class="meta">No guess yet</span>
+      </div>
+      <p class="meta" id="nextIn"></p>
+    </div>
+    <div class="daily-side">
+      <dl class="stats">
+        <div><dt>Streak</dt><dd id="dStreak">0</dd></div>
+        <div><dt>Played</dt><dd id="dPlayed">0</dd></div>
+        <div><dt>Best</dt><dd id="dBest">–</dd></div>
+        <div><dt>Average</dt><dd id="dAvg">–</dd></div>
+      </dl>
+      <div class="result" id="dailyResult" hidden>
+        <span class="tag">Today's result</span>
+        <h3 id="drVerdict"></h3>
+        <p id="drLine"></p>
+        <div class="bar" id="drBar"></div>
+        <div class="daily-actions">
+          <button id="drShare" class="primary" type="button">Share my score</button>
+          <button id="drReplay" type="button">Watch the dig</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="history daily-only" aria-label="Your Daily Dig history">
+    <div class="hist-head">
+      <h2 class="sec">Your Daily Dig history</h2>
+      <p class="meta">Your last 14 days. Saved in this browser only.</p>
+    </div>
+    <p class="meta" id="histEmpty">Play today's Daily Dig to start your history.</p>
+    <div class="hist-chart" id="histChart" role="img"></div>
+    <ol class="hist-list" id="histList"></ol>
+  </section>
+
+  <section class="maps">
+    <div class="side">
+      <div class="pt">
+        <span class="tag">You dig from</span>
+        <h2 id="fromName">Loading the map…</h2>
+        <p id="fromSub">&nbsp;</p>
+        <p class="coord" id="fromCoord">&nbsp;</p>
+      </div>
+      <div id="mapA" class="map" aria-label="Map of your starting point"></div>
+      <p class="hint explore-only">Zoom in and click the exact spot you want to dig from.</p>
+    </div>
+    <div class="side exit">
+      <div class="pt">
+        <span class="tag">You come out in</span>
+        <h2 id="toName">&nbsp;</h2>
+        <p id="toSub">&nbsp;</p>
+        <p class="coord" id="toCoord">&nbsp;</p>
+      </div>
+      <div class="map-wrap">
+        <div id="mapB" class="map" aria-label="Map of the tunnel exit"></div>
+        <div class="mystery explore-only pre-reveal" aria-hidden="true"><span>?</span></div>
+      </div>
+      <p class="hint explore-only needs-reveal">This map follows your zoom, so you see the same scale on both sides.</p>
+      <p class="hint explore-only pre-reveal">Where does your tunnel come out? Press Dig the tunnel to find out.</p>
+      <p class="hint daily-only">Your guess shows in yellow. After you lock it in, the real exit appears in orange.</p>
+    </div>
+  </section>
+
+  <div class="dig-row explore-only">
+    <button id="dig" class="big" type="button">Dig the tunnel</button>
+    <button id="share" class="needs-reveal" type="button">Share</button>
+  </div>
+
+  <section class="there needs-reveal" aria-label="About the place where you come out">
+    <h2 class="sec">At the other end</h2>
+    <div class="there-grid">
+      <div class="col">
+        <article class="card">
+          <span class="tag">Right now</span>
+          <div class="now-row">
+            <div><small>Where you dig</small><strong id="nowFrom">–</strong><span id="nowFromState"></span></div>
+            <div><small>Where you come out</small><strong id="nowTo">–</strong><span id="nowToState"></span></div>
+          </div>
+          <p class="note">Sun time, worked out from the sun's position. Clock time can differ, because time zones follow borders.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Fun fact about where you come out</span>
+          <ul class="fun" id="funFacts"></ul>
+          <p class="note">Land and water shares worked out from Natural Earth map data.</p>
+        </article>
+        <article class="card" id="shipsCard" hidden>
+          <span class="tag">Ships near your exit</span>
+          <h3>Is anyone sailing past?</h3>
+          <p class="meta">Live ship positions around the spot where you surface. Tap the map to move around in it.</p>
+          <div class="ship-map" id="shipMap"></div>
+          <p class="note">Live map by VesselFinder, shown with their permission.</p>
+          <div class="links" id="shipLinks"></div>
+          <p class="note">Far out at sea, ships can be rare, and some free trackers show fewer ships in mid-ocean.</p>
+        </article>
+      </div>
+      <article class="card">
+        <span class="tag">Nearest town to the exit</span>
+        <h3 id="townName">–</h3>
+        <p class="meta" id="townMeta"></p>
+        <div class="wiki" id="townWiki"></div>
+        <div class="links" id="townLinks"></div>
+      </article>
+      <article class="card">
+        <span class="tag" id="areaTag">About</span>
+        <div class="wiki" id="areaWiki"></div>
+      </article>
+    </div>
+    <div class="nearby">
+      <h3>Around the exit point <small>within 10 km</small></h3>
+      <ul id="nearby" class="nearby-list"></ul>
+    </div>
+    <p class="credit">Descriptions and photos from Wikipedia, available under CC BY-SA.</p>
+  </section>
+
+  <dl class="facts">
+    <div><dt>Tunnel length</dt><dd>12,742 km</dd></div>
+    <div><dt>Fall time, no air</dt><dd>about 42 min</dd></div>
+    <div><dt>Sun time there</dt><dd>12 h apart</dd></div>
+    <div><dt>Seasons there</dt><dd id="season">opposite</dd></div>
+  </dl>
+
+  <section class="cut" aria-label="Cross-section of the Earth">
+    <svg viewBox="0 0 300 330" role="img" aria-label="Earth cut in half with a straight tunnel through the centre">
+      <circle cx="150" cy="160" r="125" fill="#8a5a3b"/>
+      <circle cx="150" cy="160" r="121" fill="#b5532a"/>
+      <circle cx="150" cy="160" r="68.3" fill="#e8892f"/>
+      <circle cx="150" cy="160" r="24" fill="#ffd27a"/>
+      <line x1="150" y1="35" x2="150" y2="285" stroke="#e9edf6" stroke-width="3" stroke-dasharray="7 5"/>
+      <circle cx="150" cy="35" r="7" fill="#7fd6ff" stroke="#0a0f1c" stroke-width="2"/>
+      <circle cx="150" cy="285" r="7" fill="#ff7b3a" stroke="#0a0f1c" stroke-width="2"/>
+      <text id="cutFrom" x="150" y="18" text-anchor="middle" fill="#e9edf6" font-family="Instrument Sans, sans-serif" font-size="14" font-weight="600">Start</text>
+      <text id="cutTo" x="150" y="316" text-anchor="middle" fill="#ff7b3a" font-family="Instrument Sans, sans-serif" font-size="14" font-weight="600">Exit</text>
+    </svg>
+    <div>
+      <h3>What the tunnel goes through</h3>
+      <p>Every straight tunnel to the antipode passes through the exact centre of the Earth. Drop something in and, with no air and no friction, it would fall for about 42 minutes, reach the other side, and fall back again.</p>
+      <ul class="layers">
+        <li><span class="sw" style="background:#8a5a3b"></span>Crust<span class="km">5–70 km</span></li>
+        <li><span class="sw" style="background:#b5532a"></span>Mantle<span class="km">to 2,890 km deep</span></li>
+        <li><span class="sw" style="background:#e8892f"></span>Outer core, liquid<span class="km">to 5,150 km</span></li>
+        <li><span class="sw" style="background:#ffd27a"></span>Inner core, solid<span class="km">6,371 km = centre</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Maps: © OpenStreetMap contributors. Satellite imagery and address search: Powered by Esri (source: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community). Borders and seas: Natural Earth. Descriptions: Wikipedia (CC BY-SA). To show street names and search addresses, the point or text you enter is sent to Esri's location service. Daily Dig scores are stored only in this browser. "Sun time" means the position of the sun: when it is noon where you stand, it is midnight at the exit. Clock time zones can differ. <a href="privacy.html">Privacy</a> · Contact: <a href="mailto:digstraightthrough@gmail.com">digstraightthrough@gmail.com</a></footer>
+</main>
+
+<div id="film" hidden>
+  <canvas id="filmCanvas" aria-label="Animation of the tunnel journey"></canvas>
+  <div class="film-top">
+    <button id="filmSkip" type="button">Skip to the end</button>
+    <button id="filmClose" type="button">Close ✕</button>
+  </div>
+  <div class="film-end" id="filmEnd" hidden>
+    <span class="tag" id="feEyebrow"></span>
+    <h2 id="feTitle"></h2>
+    <div id="feLines"></div>
+    <div class="fe-actions" id="feActions"></div>
+  </div>
+</div>
+
+<div id="sheet" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-card">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Share</h2>
+      <button id="sheetClose" type="button">Close</button>
+    </div>
+    <img id="sheetImg" alt="Picture card that will be shared">
+    <p class="sheet-text" id="sheetText"></p>
+    <div class="sheet-actions">
+      <button id="shNative" class="primary" type="button">Share…</button>
+      <a id="shWa" target="_blank" rel="noopener" href="#">WhatsApp</a>
+      <a id="shX" target="_blank" rel="noopener" href="#">X (Twitter)</a>
+      <button id="shCopy" type="button">Copy text and link</button>
+      <a id="shDl" href="#" download="dig-straight-through.png">Download picture</a>
+    </div>
+    <p class="meta" id="sheetNote" role="status"></p>
+  </div>
+</div>
+
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/leaflet/leaflet.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/film.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
