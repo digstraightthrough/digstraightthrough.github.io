@@ -59,13 +59,14 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
   <header>
     <p class="eyebrow">Privacy</p>
     <h1>What this site keeps, and what it sends where</h1>
-    <p class="muted">Last updated: 6 October 2026</p>
+    <p class="muted">Last updated: 15 October 2026</p>
   </header>
 
   <div class="summary">
     <h2>In short</h2>
     <ul>
-      <li>No accounts, no ads, no tracking or analytics, no cookies set by this site. (The live ship map from VesselFinder, shown for sea exits, follows its own cookie rules.)</li>
+      <li>No accounts, no ads, no tracking, no cookies set by this site. (The live ship map from VesselFinder, shown for sea exits, follows its own cookie rules.)</li>
+      <li>We count visits with GoatCounter, which uses no cookies and keeps only totals, nothing that identifies you.</li>
       <li>Your Daily Dig scores stay in your own browser. We never receive them.</li>
       <li>To show maps, street names, satellite photos and descriptions, your browser contacts a few outside services, listed below.</li>
       <li>We have no server and no database, so we hold no personal data about you.</li>
@@ -117,6 +118,12 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
             <td>To show live ship positions around the exit (shown with their permission)</td>
           </tr>
           <tr>
+            <td><strong>GoatCounter</strong> (visitor counting)<br><a href="https://www.goatcounter.com/help/privacy" target="_blank" rel="noopener">Privacy policy</a></td>
+            <td>Every page visit, and when you dig a tunnel, play the Daily Dig or open Share</td>
+            <td>The page name (never your starting point or any coordinates), the website that sent you here, browser and system type, screen width and language. Your country is worked out from your IP address, which GoatCounter does not store. No cookies are used.</td>
+            <td>To count visits and see which features people use. GoatCounter keeps only daily and hourly totals, on servers in Finland and Germany, and shares nothing with anyone.</td>
+          </tr>
+          <tr>
             <td><strong>Wikipedia</strong> (Wikimedia Foundation)<br><a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy" target="_blank" rel="noopener">Privacy policy</a></td>
             <td>After you dig, when the facts about the exit are shown</td>
             <td>The coordinates of the exit point and the names of the nearest town and country or sea</td>
@@ -146,7 +153,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
     <h2>What we don't do</h2>
     <ul>
       <li>No user accounts or sign-in.</li>
-      <li>No advertising, analytics or tracking tools.</li>
+      <li>No advertising and no tracking tools. Our visitor count (GoatCounter) keeps only totals: no cookies, no IP addresses, nothing that identifies you.</li>
       <li>No selling or sharing of data. We don't collect any to begin with.</li>
       <li>Fonts and code libraries are served from this site itself, so your browser does not contact Google or code-hosting services when you visit.</li>
     </ul>
@@ -159,5 +166,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line)
 
   <footer>If this page changes, the date at the top will change too.</footer>
 </main>
+<script>window.goatcounter = { path: function () { return location.pathname || "/"; } };</script>
+<script data-goatcounter="https://digstraightthrough.goatcounter.com/count" async src="vendor/goatcounter/count.js"></script>
 </body>
 </html>

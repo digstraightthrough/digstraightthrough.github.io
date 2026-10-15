@@ -21,6 +21,10 @@
   // "the Pacific Ocean", "the Tasman Sea" in sentences; land names stay as they are.
   const inSentence = s => (!exitIsLand && !/^the\s/i.test(s) && /\b(Ocean|Sea|Gulf|Bay|Strait|Channel|Sound|Bight|Passage)\b/.test(s)) ? "the " + s : s;
   function say(text) { const m = $("msg"); m.textContent = text; m.hidden = !text; }
+  // Anonymous action counts in GoatCounter (only a fixed name, never a place). Does nothing if the counter isn't loaded.
+  function track(name, title) {
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title, event: true }); } catch { /* counting must never break the app */ }
+  }
   function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
   function linkOut(label, href) { const a = el("a", null, label); a.href = href; a.target = "_blank"; a.rel = "noopener"; return a; }
 
@@ -448,7 +452,7 @@
     }
     $("toName").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
   };
-  $("dig").onclick = () => playFilm();
+  $("dig").onclick = () => { track("dig", "Dug a tunnel"); playFilm(); };
 
   // =====================================================================
   // ---------- Daily Dig ----------
@@ -574,6 +578,7 @@
   $("modeExplore").onclick = enterExplore;
 
   $("lockGuess").onclick = () => {
+    if (daily.guess && !daily.result) track("daily-dig", "Played the Daily Dig");
     if (!daily.guess || daily.result) return;
     const off = km(d3.geoDistance(daily.guess, exit)), score = scoreFor(off);
     const s = loadD();
@@ -674,6 +679,7 @@
   }
   let shareBlob = null, shareUrl = null;
   async function openShare() {
+    track("share", "Opened Share");
     if (!origin) return;
     const sc = shareContent();
     $("sheetTitle").textContent = sc.daily ? "Share your score" : "Share your tunnel";
